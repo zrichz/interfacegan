@@ -8,7 +8,7 @@
 ![image](./docs/assets/teaser.jpg)
 **Figure:** *High-quality facial attributes editing results with InterFaceGAN.*
 
-In this repository, we propose an approach, termed as InterFaceGAN, for semantic face editing. Specifically, InterFaceGAN is capable of turning an unconditionally trained face synthesis model to controllable GAN by interpreting the very first latent space and finding the hidden semantic subspaces.
+In this repository we propose an approach termed as InterFaceGAN, for semantic face editing. Specifically, InterFaceGAN is capable of turning an unconditionally trained face synthesis model into a controllable GAN by interpreting the first latent space and finding the hidden semantic sub-spaces.
 
 [[Paper (CVPR)](https://arxiv.org/pdf/1907.10786.pdf)]
 [[Paper (TPAMI)](https://arxiv.org/pdf/2005.09635.pdf)]
@@ -18,7 +18,7 @@ In this repository, we propose an approach, termed as InterFaceGAN, for semantic
 
 ## How to Use
 
-Pick up a model, pick up a boundary, pick up a latent code, and then EDIT!
+Pick a model, pick a boundary, pick a latent code, and then EDIT!
 
 ```bash
 # Before running the following code, please first download
@@ -48,25 +48,25 @@ StyleGAN:
 
 ### Generative Models
 
-A GAN-based generative model basically maps the latent codes (commonly sampled from high-dimensional latent space, such as standart normal distribution) to photo-realistic images. Accordingly, a base class for generator, called `BaseGenerator`, is defined in `models/base_generator.py`. Basically, it should contains following member functions:
+A GAN-based generative model maps the latent codes (commonly sampled from high-dimensional latent space, such as standard normal distribution) to photo-realistic images. Accordingly, a base class for generator, called `BaseGenerator`, is defined in `models/base_generator.py`. It should contain the following member functions:
 
 - `build()`: Build a pytorch module.
 - `load()`: Load pre-trained weights.
 - `convert_tf_model()` (Optional): Convert pre-trained weights from tensorflow model.
 - `sample()`: Randomly sample latent codes. This function should specify what kind of distribution the latent code is subject to.
-- `preprocess()`: Function to preprocess the latent codes before feeding it into the generator.
-- `synthesize()`: Run the model to get synthesized results (or any other intermediate outputs).
+- `preprocess()`: Function to preprocess the latent codes before feeding them into the generator.
+- `synthesize()`: Run the model to get synthesized results (or any intermediate outputs).
 - `postprocess()`: Function to postprocess the outputs from generator to convert them to images.
 
-We have already provided following models in this repository:
+We have already provided the following models in this repository:
 
 - ProgressiveGAN:
-  - A clone of official tensorflow implementation: `models/pggan_tf_official/`. This clone is only used for converting tensorflow pre-trained weights to pytorch ones. This conversion will be done automitally when the model is used for the first time. After that, tensorflow version is not used anymore.
+  - A clone of official tensorflow implementation: `models/pggan_tf_official/`. This clone is only used for converting tensorflow pre-trained weights to pytorch ones. This conversion will be done automatically when the model is used for the first time. After that, tensorflow version is not used anymore.
   - Pytorch implementation of official model (just for inference): `models/pggan_generator_model.py`.
   - Generator class derived from `BaseGenerator`: `models/pggan_generator.py`.
   - Please download the official released model trained on CelebA-HQ dataset and place it in folder `models/pretrain/`.
 - StyleGAN:
-  - A clone of official tensorflow implementation: `models/stylegan_tf_official/`. This clone is only used for converting tensorflow pre-trained weights to pytorch ones. This conversion will be done automitally when the model is used for the first time. After that, tensorflow version is not used anymore.
+  - A clone of official tensorflow implementation: `models/stylegan_tf_official/`. This clone is only used for converting tensorflow pre-trained weights to pytorch ones. This conversion will be done automatically when the model is used for the first time. After that, tensorflow version is not used anymore.
   - Pytorch implementation of official model (just for inference): `models/stylegan_generator_model.py`.
   - Generator class derived from `BaseGenerator`: `models/stylegan_generator.py`.
   - Please download the official released models trained on CelebA-HQ dataset and FF-HQ dataset and place them in folder `models/pretrain/`.
@@ -74,15 +74,15 @@ We have already provided following models in this repository:
   - Set truncation trick and noise randomization trick in `models/model_settings.py`. Among them, `STYLEGAN_RANDOMIZE_NOISE` is highly recommended to set as `False`. `STYLEGAN_TRUNCATION_PSI = 0.7` and `STYLEGAN_TRUNCATION_LAYERS = 8` are inherited from official implementation. Users can customize their own models. NOTE: These three settings will NOT affect the pre-trained weights.
 - Customized model:
   - Users can do experiments with their own models by easily deriving new class from `BaseGenerator`.
-  - Before used, new model should be first registered in `MODEL_POOL` in file `models/model_settings.py`.
+  - Before use, the new model should be first registered in `MODEL_POOL` in file `models/model_settings.py`.
 
 ### Utility Functions
 
-We provide following utility functions in `utils/manipulator.py` to make InterFaceGAN much easier to use.
+We provide following utility functions in `utils/manipulator.py` to make InterFaceGAN easier to use.
 
-- `train_boundary()`: This function can be used for boundary searching. It takes pre-prepared latent codes and the corresponding attributes scores as inputs, and then outputs the normal direction of the separation boundary. Basically, this goal is achieved by training a linear SVM. The returned vector can be further used for semantic face editing.
-- `project_boundary()`: This function can be used for conditional manipulation. It takes a primal direction and other conditional directions as inputs, and then outputs a new normalized direction. Moving latent code along this new direction will manipulate the primal attribute yet barely affect the conditioned attributes. NOTE: For now, at most two conditions are supported.
-- `linear_interpolate()`: This function can be used for semantic face editing. It takes a latent code and the normal direction of a particular semantic boundary as inputs, and then outputs a collection of manipulated latent codes with linear interpolation. These interpolation can be used to see how the synthesis will vary if moving the latent code along the given direction.
+- `train_boundary()`: This function can be used for boundary searching. It takes pre-prepared latent codes and the corresponding attributes scores as inputs, and then outputs the normal direction of the separation boundary. This is achieved by training a linear SVM. The returned vector can be further used for semantic face editing.
+- `project_boundary()`: This function can be used for conditional manipulation. It takes a primal direction and other conditional directions as inputs, and then outputs a new normalized direction. Moving latent code along this new direction will manipulate the primal attribute, yet barely affect the conditioned attributes. NOTE: For now, at most two conditions are supported.
+- `linear_interpolate()`: This function can be used for semantic face editing. It takes a latent code and the normal direction of a particular semantic boundary as inputs, and then outputs a collection of manipulated latent codes with linear interpolation. These interpolations can be used to see how the synthesis will vary if the latent code is moved along the given direction.
 
 ### Tools
 
